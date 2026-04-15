@@ -17,17 +17,11 @@ type InitialState = {
 const STORAGE_KEY = 'deadline-mvp:data';
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
-/**
- * Convert a Date object into the datetime-local input format.
- */
 const toLocalDateTimeValue = (date: Date): string => {
   const offsetMs = date.getTimezoneOffset() * 60 * 1000;
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
 };
 
-/**
- * Load and validate persisted deadline data.
- */
 const loadInitialState = (): InitialState => {
   const raw = localStorage.getItem(STORAGE_KEY);
   if (!raw) {
@@ -62,7 +56,6 @@ function App() {
   const [inputValue, setInputValue] = useState(initial.inputValue);
   const [now, setNow] = useState(() => new Date());
 
-  // Tick every second so the countdown updates live.
   useEffect(() => {
     const timer = window.setInterval(() => {
       setNow(new Date());
@@ -145,22 +138,10 @@ function App() {
                 <p className="time-up">Time&apos;s Up</p>
               ) : (
                 <>
-                  <div>
-                    <span>{parts.days}</span>
-                    <small>Days</small>
-                  </div>
-                  <div>
-                    <span>{parts.hours}</span>
-                    <small>Hours</small>
-                  </div>
-                  <div>
-                    <span>{parts.minutes}</span>
-                    <small>Minutes</small>
-                  </div>
-                  <div>
-                    <span>{parts.seconds}</span>
-                    <small>Seconds</small>
-                  </div>
+                  <div><span>{parts.days}</span><small>Days</small></div>
+                  <div><span>{parts.hours}</span><small>Hours</small></div>
+                  <div><span>{parts.minutes}</span><small>Minutes</small></div>
+                  <div><span>{parts.seconds}</span><small>Seconds</small></div>
                 </>
               )}
             </div>
