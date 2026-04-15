@@ -1,73 +1,62 @@
-# React + TypeScript + Vite
+# Deadline Countdown (React + Vite)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive countdown web app built with React, HTML, CSS, and TypeScript.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Pick a deadline date and time with a `datetime-local` input.
+- Live countdown in days, hours, minutes, and seconds (updates every second).
+- Red warning style when less than 24 hours remain.
+- Shows **"Time's Up"** when the countdown reaches zero.
+- Saves the deadline in `localStorage` so data persists on refresh.
+- Progress bar that shows the percentage of time remaining.
+- Clean, centered, modern layout with responsive behavior.
 
-## React Compiler
+## Folder Structure
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+Dead-Line-MVP/
+├─ public/
+│  ├─ favicon.svg
+│  └─ icons.svg
+├─ src/
+│  ├─ utils/
+│  │  └─ time.ts
+│  ├─ App.tsx
+│  ├─ App.css
+│  ├─ main.tsx
+│  ├─ theme.ts
+│  └─ vite-env.d.ts
+├─ index.html
+├─ package.json
+├─ tsconfig.json
+├─ tsconfig.app.json
+├─ tsconfig.node.json
+├─ vite.config.ts
+└─ README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Run Locally
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
+
+## Build for Production
+
+```bash
+npm run build
+npm run preview
+```
+
+## GitHub Deployment (GitHub Pages)
+
+This project is Vite-based and can be deployed with a Pages workflow.
+
+1. Push this project to a GitHub repository.
+2. Add a workflow file at `.github/workflows/deploy.yml`.
+3. Build with `npm ci && npm run build`.
+4. Deploy the `dist/` folder with `actions/deploy-pages`.
+
+> If your repo is served from a subpath (`https://<user>.github.io/<repo>/`), set `base: '/<repo>/'` in `vite.config.ts`.
