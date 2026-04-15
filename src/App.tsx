@@ -18,9 +18,9 @@ const STORAGE_KEY = 'deadline-mvp:data';
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 /**
- * Global default deadline (same for all users/devices)
+ * Default deadline (your version kept)
  */
-const DEFAULT_DEADLINE_ISO = '2026-12-31T23:59:59.000Z';
+const DEFAULT_DEADLINE_ISO = '2026-04-19T12:00:00';
 
 const toLocalDateTimeValue = (date: Date): string => {
   const offsetMs = date.getTimezoneOffset() * 60 * 1000;
@@ -50,10 +50,10 @@ const loadInitialState = (): InitialState => {
         };
       }
     } catch {}
+
     localStorage.removeItem(STORAGE_KEY);
   }
 
-  // fallback → default deadline (important for your requirement)
   const codeDeadline = new Date(DEFAULT_DEADLINE_ISO);
 
   if (Number.isNaN(codeDeadline.getTime())) {
@@ -131,7 +131,7 @@ function App() {
       <section className="card" aria-live="polite">
         <h1>Deadline Countdown</h1>
         <p className="subtitle">
-          Frontend-only save (no database). Clear to set a new deadline.
+          Frontend-only save (no database). Clear to ask for a new deadline.
         </p>
 
         <form className="deadline-form" onSubmit={handleSubmit}>
@@ -177,7 +177,7 @@ function App() {
             </div>
           </>
         ) : (
-          <p className="subtitle">Please set and save a deadline.</p>
+          <p className="subtitle">Please set and save a deadline to start the countdown.</p>
         )}
       </section>
     </main>
