@@ -129,11 +129,8 @@ function App() {
   return (
     <main className="app-shell">
       <section className="card" aria-live="polite">
-        <h1>Deadline Countdown</h1>
-        <p className="subtitle">
-          Frontend-only save (no database). Clear to ask for a new deadline.
-        </p>
-
+        <h1>Deadline Countdown - Sample Website Launching of AGRI APP</h1>
+      
         <form className="deadline-form" onSubmit={handleSubmit}>
           <label htmlFor="deadline-input">Deadline date &amp; time</label>
           <input
