@@ -1,0 +1,152 @@
+:root {
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #0f172a;
+  background: linear-gradient(120deg, #f8fafc, #e2e8f0);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.card {
+  width: min(720px, 100%);
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+  padding: clamp(1.25rem, 2vw, 2rem);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+}
+
+.subtitle {
+  margin-top: 0.35rem;
+  color: #475569;
+}
+
+.deadline-form {
+  margin-top: 1.25rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.deadline-form label {
+  font-weight: 600;
+}
+
+.deadline-form input {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 0.7rem;
+  font: inherit;
+}
+
+.actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+button {
+  border: none;
+  border-radius: 10px;
+  padding: 0.65rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  color: #ffffff;
+  background: #2563eb;
+  cursor: pointer;
+}
+
+button.ghost {
+  color: #1e293b;
+  background: #e2e8f0;
+}
+
+.countdown {
+  margin-top: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  text-align: center;
+}
+
+.countdown > div {
+  background: #f1f5f9;
+  border-radius: 12px;
+  padding: 0.8rem;
+}
+
+.countdown span {
+  display: block;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  font-weight: 700;
+}
+
+.countdown small {
+  color: #475569;
+  font-size: 0.78rem;
+}
+
+.warning > div,
+.warning .time-up {
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+}
+
+.time-up {
+  grid-column: 1 / -1;
+  margin: 0;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.progress-wrapper {
+  margin-top: 1.5rem;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  color: #334155;
+  font-size: 0.92rem;
+  margin-bottom: 0.45rem;
+}
+
+.progress-track {
+  width: 100%;
+  height: 12px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2563eb, #22d3ee);
+  transition: width 0.45s linear;
+}
+
+@media (max-width: 560px) {
+  .countdown {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
