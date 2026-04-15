@@ -17,36 +17,54 @@ type InitialState = {
 const STORAGE_KEY = 'deadline-mvp:data';
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
+/**
+ * Global default deadline (same for all users/devices)
+ */
+const DEFAULT_DEADLINE_ISO = '2026-12-31T23:59:59.000Z';
+
 const toLocalDateTimeValue = (date: Date): string => {
   const offsetMs = date.getTimezoneOffset() * 60 * 1000;
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
 };
 
+const emptyInitialState = (): InitialState => ({
+  deadline: null,
+  startTime: null,
+  inputValue: '',
+});
+
 const loadInitialState = (): InitialState => {
   const raw = localStorage.getItem(STORAGE_KEY);
-  if (!raw) {
-    return { deadline: null, startTime: null, inputValue: '' };
-  }
 
-  try {
-    const saved = JSON.parse(raw) as SavedDeadline;
-    const deadlineDate = new Date(saved.deadlineISO);
-    const startDate = new Date(saved.startISO);
+  if (raw) {
+    try {
+      const saved = JSON.parse(raw) as SavedDeadline;
+      const deadlineDate = new Date(saved.deadlineISO);
+      const startDate = new Date(saved.startISO);
 
-    if (Number.isNaN(deadlineDate.getTime()) || Number.isNaN(startDate.getTime())) {
-      localStorage.removeItem(STORAGE_KEY);
-      return { deadline: null, startTime: null, inputValue: '' };
-    }
-
-    return {
-      deadline: deadlineDate,
-      startTime: startDate,
-      inputValue: toLocalDateTimeValue(deadlineDate),
-    };
-  } catch {
+      if (!Number.isNaN(deadlineDate.getTime()) && !Number.isNaN(startDate.getTime())) {
+        return {
+          deadline: deadlineDate,
+          startTime: startDate,
+          inputValue: toLocalDateTimeValue(deadlineDate),
+        };
+      }
+    } catch {}
     localStorage.removeItem(STORAGE_KEY);
-    return { deadline: null, startTime: null, inputValue: '' };
   }
+
+  // fallback → default deadline (important for your requirement)
+  const codeDeadline = new Date(DEFAULT_DEADLINE_ISO);
+
+  if (Number.isNaN(codeDeadline.getTime())) {
+    return emptyInitialState();
+  }
+
+  return {
+    deadline: codeDeadline,
+    startTime: new Date(),
+    inputValue: toLocalDateTimeValue(codeDeadline),
+  };
 };
 
 function App() {
@@ -112,7 +130,9 @@ function App() {
     <main className="app-shell">
       <section className="card" aria-live="polite">
         <h1>Deadline Countdown</h1>
-        <p className="subtitle">Set your target date and track every second.</p>
+        <p className="subtitle">
+          Frontend-only save (no database). Clear to set a new deadline.
+        </p>
 
         <form className="deadline-form" onSubmit={handleSubmit}>
           <label htmlFor="deadline-input">Deadline date &amp; time</label>
@@ -131,7 +151,7 @@ function App() {
           </div>
         </form>
 
-        {deadline && (
+        {deadline ? (
           <>
             <div className={`countdown ${isNearDeadline ? 'warning' : ''}`}>
               {isExpired ? (
@@ -156,6 +176,8 @@ function App() {
               </div>
             </div>
           </>
+        ) : (
+          <p className="subtitle">Please set and save a deadline.</p>
         )}
       </section>
     </main>
