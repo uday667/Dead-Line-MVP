@@ -3,45 +3,59 @@ import type { FormEvent } from 'react';
 import './App.css';
 import { formatDuration, getProgressRemainingPercent, getTimeRemaining } from './utils/time';
 
+type SavedDeadline = {
+  deadlineISO: string;
+  startISO: string;
+};
+
 type InitialState = {
-  deadline: Date;
-  startTime: Date;
+  deadline: Date | null;
+  startTime: Date | null;
   inputValue: string;
 };
 
+const STORAGE_KEY = 'deadline-mvp:data';
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 
-/**
- * Convert a Date object into the datetime-local input format.
- */
 const toLocalDateTimeValue = (date: Date): string => {
   const offsetMs = date.getTimezoneOffset() * 60 * 1000;
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
 };
 
-/**
- * Start with a sensible default (24h from now) so users do not land on an empty screen.
- * This is front-end only and does not use any database.
- */
-const createInitialState = (): InitialState => {
-  const startTime = new Date();
-  const deadline = new Date(startTime.getTime() + ONE_DAY_IN_MS);
+const loadInitialState = (): InitialState => {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    return { deadline: null, startTime: null, inputValue: '' };
+  }
 
-  return {
-    deadline,
-    startTime,
-    inputValue: toLocalDateTimeValue(deadline),
-  };
+  try {
+    const saved = JSON.parse(raw) as SavedDeadline;
+    const deadlineDate = new Date(saved.deadlineISO);
+    const startDate = new Date(saved.startISO);
+
+    if (Number.isNaN(deadlineDate.getTime()) || Number.isNaN(startDate.getTime())) {
+      localStorage.removeItem(STORAGE_KEY);
+      return { deadline: null, startTime: null, inputValue: '' };
+    }
+
+    return {
+      deadline: deadlineDate,
+      startTime: startDate,
+      inputValue: toLocalDateTimeValue(deadlineDate),
+    };
+  } catch {
+    localStorage.removeItem(STORAGE_KEY);
+    return { deadline: null, startTime: null, inputValue: '' };
+  }
 };
 
 function App() {
-  const [initial] = useState<InitialState>(createInitialState);
-  const [deadline, setDeadline] = useState<Date>(initial.deadline);
-  const [startTime, setStartTime] = useState<Date>(initial.startTime);
+  const [initial] = useState<InitialState>(loadInitialState);
+  const [deadline, setDeadline] = useState<Date | null>(initial.deadline);
+  const [startTime, setStartTime] = useState<Date | null>(initial.startTime);
   const [inputValue, setInputValue] = useState(initial.inputValue);
   const [now, setNow] = useState(() => new Date());
 
-  // Tick every second so the countdown updates live.
   useEffect(() => {
     const timer = window.setInterval(() => {
       setNow(new Date());
@@ -50,15 +64,18 @@ function App() {
     return () => window.clearInterval(timer);
   }, []);
 
-  const timeRemaining = useMemo(() => getTimeRemaining(deadline, now), [deadline, now]);
+  const timeRemaining = useMemo(() => {
+    if (!deadline) return 0;
+    return getTimeRemaining(deadline, now);
+  }, [deadline, now]);
 
-  const progressRemaining = useMemo(
-    () => getProgressRemainingPercent(startTime, deadline, now),
-    [deadline, startTime, now],
-  );
+  const progressRemaining = useMemo(() => {
+    if (!deadline || !startTime) return 0;
+    return getProgressRemainingPercent(startTime, deadline, now);
+  }, [deadline, startTime, now]);
 
   const isNearDeadline = timeRemaining > 0 && timeRemaining < ONE_DAY_IN_MS;
-  const isExpired = timeRemaining <= 0;
+  const isExpired = deadline !== null && timeRemaining <= 0;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -72,14 +89,21 @@ function App() {
     setDeadline(nextDeadline);
     setStartTime(nextStart);
     setNow(new Date());
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        deadlineISO: nextDeadline.toISOString(),
+        startISO: nextStart.toISOString(),
+      } satisfies SavedDeadline),
+    );
   };
 
-  const handleReset = () => {
-    const resetState = createInitialState();
-    setDeadline(resetState.deadline);
-    setStartTime(resetState.startTime);
-    setInputValue(resetState.inputValue);
-    setNow(new Date());
+  const handleClear = () => {
+    setDeadline(null);
+    setStartTime(null);
+    setInputValue('');
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const parts = formatDuration(timeRemaining);
@@ -88,7 +112,7 @@ function App() {
     <main className="app-shell">
       <section className="card" aria-live="polite">
         <h1>Deadline Countdown</h1>
-        <p className="subtitle">Simple front-end timer with no backend or database.</p>
+        <p className="subtitle">Set your target date and track every second.</p>
 
         <form className="deadline-form" onSubmit={handleSubmit}>
           <label htmlFor="deadline-input">Deadline date &amp; time</label>
@@ -101,46 +125,38 @@ function App() {
           />
           <div className="actions">
             <button type="submit">Save Deadline</button>
-            <button type="button" className="ghost" onClick={handleReset}>
-              Reset to +24h
+            <button type="button" className="ghost" onClick={handleClear}>
+              Clear
             </button>
           </div>
         </form>
 
-        <div className={`countdown ${isNearDeadline ? 'warning' : ''}`}>
-          {isExpired ? (
-            <p className="time-up">Time&apos;s Up</p>
-          ) : (
-            <>
-              <div>
-                <span>{parts.days}</span>
-                <small>Days</small>
-              </div>
-              <div>
-                <span>{parts.hours}</span>
-                <small>Hours</small>
-              </div>
-              <div>
-                <span>{parts.minutes}</span>
-                <small>Minutes</small>
-              </div>
-              <div>
-                <span>{parts.seconds}</span>
-                <small>Seconds</small>
-              </div>
-            </>
-          )}
-        </div>
+        {deadline && (
+          <>
+            <div className={`countdown ${isNearDeadline ? 'warning' : ''}`}>
+              {isExpired ? (
+                <p className="time-up">Time&apos;s Up</p>
+              ) : (
+                <>
+                  <div><span>{parts.days}</span><small>Days</small></div>
+                  <div><span>{parts.hours}</span><small>Hours</small></div>
+                  <div><span>{parts.minutes}</span><small>Minutes</small></div>
+                  <div><span>{parts.seconds}</span><small>Seconds</small></div>
+                </>
+              )}
+            </div>
 
-        <div className="progress-wrapper">
-          <div className="progress-label">
-            <span>Time remaining</span>
-            <span>{progressRemaining.toFixed(1)}%</span>
-          </div>
-          <div className="progress-track" role="progressbar" aria-valuenow={progressRemaining}>
-            <div className="progress-fill" style={{ width: `${progressRemaining}%` }} />
-          </div>
-        </div>
+            <div className="progress-wrapper">
+              <div className="progress-label">
+                <span>Time remaining</span>
+                <span>{progressRemaining.toFixed(1)}%</span>
+              </div>
+              <div className="progress-track" role="progressbar" aria-valuenow={progressRemaining}>
+                <div className="progress-fill" style={{ width: `${progressRemaining}%` }} />
+              </div>
+            </div>
+          </>
+        )}
       </section>
     </main>
   );

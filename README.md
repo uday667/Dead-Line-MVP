@@ -1,6 +1,6 @@
 # Deadline Countdown (React + Vite)
 
-A responsive countdown web app built with React, HTML, CSS, and TypeScript only.
+A responsive countdown web app built with React, HTML, CSS, and TypeScript.
 
 ## Features
 
@@ -8,7 +8,7 @@ A responsive countdown web app built with React, HTML, CSS, and TypeScript only.
 - Live countdown in days, hours, minutes, and seconds (updates every second).
 - Red warning style when less than 24 hours remain.
 - Shows **"Time's Up"** when the countdown reaches zero.
-- Front-end only implementation (no backend/database).
+- Saves the deadline in `localStorage` so data persists on refresh.
 - Progress bar that shows the percentage of time remaining.
 - Clean, centered, modern layout with responsive behavior.
 
